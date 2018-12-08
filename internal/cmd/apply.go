@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/mellena1/photo-resizer/pkg/photos"
 
@@ -38,7 +40,9 @@ func init() {
 
 func apply(cmd *cobra.Command, args []string) {
 	if width == -1 || height == -1 {
-		panic("Must set height (-h) and width (-w)")
+		log.Errorln("Must set height (-h) and width (-w)")
+		cmd.Help()
+		os.Exit(1)
 	}
 
 	// Get the list of images
@@ -47,7 +51,9 @@ func apply(cmd *cobra.Command, args []string) {
 	if planFileToApply == "" {
 		// No plan
 		if fileglob == "" {
-			panic("Must set either plan (-f) or fileglob (-g)")
+			log.Errorln("Must set either plan (-f) or fileglob (-g)")
+			cmd.Help()
+			os.Exit(1)
 		}
 		images, err = photos.FindImagesFromGlob(fileglob)
 		helpers.PanicIfErr(err)
@@ -67,6 +73,8 @@ func apply(cmd *cobra.Command, args []string) {
 	}
 
 	// Resize the images
+	wg := sync.WaitGroup{}
+	wg.Add(len(images))
 	for _, img := range images {
 		var newName string
 		if fileSuffix == "" {
@@ -75,7 +83,11 @@ func apply(cmd *cobra.Command, args []string) {
 			ext := filepath.Ext(img.Filename)
 			newName = img.Filename[:len(img.Filename)-len(ext)] + "-" + fileSuffix + ext
 		}
-		photos.Resize(img, newName, width, height)
+		go func(img *photos.FileImage) {
+			photos.Resize(img, newName, width, height)
+			wg.Done()
+		}(img)
 	}
+	wg.Wait()
 	fmt.Printf("Resized %d images.\n", len(images))
 }

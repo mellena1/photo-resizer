@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 
 	"github.com/mellena1/photo-resizer/pkg/photos"
 
 	"github.com/mellena1/photo-resizer/internal/helpers"
 	"github.com/spf13/cobra"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var planFile string
@@ -26,7 +29,9 @@ func init() {
 
 func plan(cmd *cobra.Command, args []string) {
 	if fileglob == "" {
-		panic("Must set fileglob (-g)")
+		log.Errorln("Must set fileglob (-g)")
+		cmd.Help()
+		os.Exit(1)
 	}
 	images, err := photos.FindImagesFromGlob(fileglob)
 	helpers.PanicIfErr(err)
