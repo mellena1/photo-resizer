@@ -10,6 +10,10 @@ GOGET=$(GOCMD) get
 MAIN_FILE=cmd/photoresizer.go
 BINARY_NAME=photo-resizer
 
+DARWIN_BINARY_NAME=$(BINARY_NAME)-darwin-amd64
+LINUX_BINARY_NAME=$(BINARY_NAME)-linux-amd64
+WINDOWS_BINARY_NAME=$(BINARY_NAME)-windows-amd64.exe
+
 all: test build
 
 build: 
@@ -27,3 +31,8 @@ clean:
 
 get:
 	$(GOGET) ./...
+
+build-all-os:
+	GOOS=darwin GOARCH=amd64 $(GOBUILD) -o $(DARWIN_BINARY_NAME) -v $(MAIN_FILE)
+	GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(LINUX_BINARY_NAME) -v $(MAIN_FILE)
+	GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(WINDOWS_BINARY_NAME) -v $(MAIN_FILE)
