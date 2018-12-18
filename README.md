@@ -20,4 +20,4 @@ Check the help for more options. `photo-resizer [command] --help`
 
 
 ## File Glob
-Uses [https://github.com/bmatcuk/doublestar](github.com/bmatcuk/doublestar) for the globbing. Check that repo for info on the understood glob syntax.
+Uses [github.com/bmatcuk/doublestar](https://github.com/bmatcuk/doublestar) for the globbing. Check that repo for info on the understood glob syntax.
